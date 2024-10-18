@@ -1,5 +1,5 @@
 {
-  "originHash" : "8bb8cf2d8876df97bd2165bd1f3d45fa6f04bdd91dded6f9888a5bc00b780749",
+  "originHash" : "4cc1aa9a4dbbed092092cd258fc50d2a9965b777f2028b0db9a76f8aa81b6cd2",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -25,6 +25,14 @@
       "state" : {
         "revision" : "8576f0d579b27020beccbccc3ea6844f3ddfc2c2",
         "version" : "0.14.0"
+      }
+    },
+    {
+      "identity" : "zip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lrdsnow/Zip.git",
+      "state" : {
+        "revision" : "48ff25a76bf37a2922e41e129f56404d9b4eee87"
       }
     }
   ],
