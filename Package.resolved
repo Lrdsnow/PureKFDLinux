@@ -1,5 +1,5 @@
 {
-  "originHash" : "f7bafa607361607159495918fd12dd2aa903069fd0838942fe75287fdc43c003",
+  "originHash" : "8bb8cf2d8876df97bd2165bd1f3d45fa6f04bdd91dded6f9888a5bc00b780749",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,14 @@
       "state" : {
         "revision" : "ea6a94b7dddffd0ca4d0f29252d95310b84dec84",
         "version" : "5.10.0"
+      }
+    },
+    {
+      "identity" : "jason",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lrdsnow/JASON.git",
+      "state" : {
+        "revision" : "72ec8fcdb3df09057d22e71680bca8a643967d47"
       }
     },
     {

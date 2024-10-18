@@ -17,19 +17,6 @@ import OpenCombine
 import JASON
 #endif 
 
-
-let config_filename = "purekfd_v6_config.json"
-
-extension URL {
-    static var documents: URL {
-        return URL(fileURLWithPath: "\(NSHomeDirectory())/Documents")
-    }
-}
-
-extension String: LocalizedError {
-    public var errorDescription: String? { return self }
-}
-
 public class RepoHandler: ObservableObject {
     
     var cached_repo_urls: [URL]? = nil
