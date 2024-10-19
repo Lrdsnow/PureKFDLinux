@@ -64,7 +64,7 @@ struct ToolbarView: View {
                 visible: $about,
                 app: "PureKFD",
                 developer: "lrdsnow",
-                version: "v7"
+                version: "v6.1"
             )
         }
     }
