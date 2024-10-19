@@ -26,6 +26,10 @@ struct PureKFDApp: App {
 
 struct ToolbarView: View {
 
+    @Binding var installedTweaks: [Package]
+    @Binding var appliedTweaks: Bool
+    @Binding var appliedTweaksMessage: String
+
     @State private var about = false
     var app: AdwaitaApp
     var window: AdwaitaWindow
@@ -33,14 +37,21 @@ struct ToolbarView: View {
     var view: Body {
         HeaderBar.end {
             Menu(icon: .default(icon: .openMenu)) {
-                MenuButton("New Window", window: false) {
-                    app.addWindow("main")
+                MenuButton("Apply Tweaks", window: false) {
+                    let msg = TweakHandler.applyTweaksWithReturn(pkgs: installedTweaks)
+                    appliedTweaksMessage = msg
+                    appliedTweaks = true
                 }
-                .keyboardShortcut("n".ctrl())
-                MenuButton("Close Window") {
-                    window.close()
+                MenuSection {
+                    MenuButton("New Window", window: false) {
+                        app.addWindow("main")
+                    }
+                    .keyboardShortcut("n".ctrl())
+                    MenuButton("Close Window") {
+                        window.close()
+                    }
+                    .keyboardShortcut("w".ctrl())
                 }
-                .keyboardShortcut("w".ctrl())
                 MenuSection {
                     MenuButton("About", window: false) {
                         about = true
@@ -72,6 +83,14 @@ struct MainView: View {
     @State private var selectedRepo: Repo? = nil
     @State private var selectedPackage: Package? = nil
 
+    @State private var pythonWarning = false
+    @State private var appliedTweaks = false
+    @State private var appliedTweaksMessage = "Unknown Error Occured"
+    @State private var uninstallTweakConfirmation = false
+    @State private var installedTweak = false
+    @State private var installedTweakError = false
+    @State private var installedTweakErrorMessage = "Unknown Error Occured"
+
     var view: Body {
         NavigationSplitView(sidebar: {
             VStack {
@@ -95,11 +114,12 @@ struct MainView: View {
                 Text("Installed").title2(true)
                 ForEach(installedTweaks) { pkg in
                     Button(pkg.name, handler: {
-
+                        selectedPackage = pkg
+                        uninstallTweakConfirmation = true
                     }).padding(2)
                 }
             } else if tab == 1 {
-                Text("Settings").title2(true)
+                Text("Host Info").title2(true)
                 Text(systemInfo.os)
                 Text(systemInfo.kernel)
                 Text(systemInfo.cpu)
@@ -126,10 +146,14 @@ struct MainView: View {
                         Task {
                             print("\(cyan)Installing \(pkg.name)...\(reg)")
                             do {
-                                try await TweakHandler.downloadTweakAsync(pkg: pkg)
+                                try await downloadTweakAsync(pkg: pkg)
+                                installedTweaks.append(pkg)
                                 print("\(green)Installed Successfully!\(reg)")
+                                installedTweak = true
                             } catch {
                                 print("\(red)Failed to download tweak: \(error.localizedDescription)\(reg)")
+                                installedTweakError = true
+                                installedTweakErrorMessage = "Failed to download tweak: \(error.localizedDescription)"
                             }
                         }
                     }).pill().halign(.center).padding()
@@ -138,10 +162,35 @@ struct MainView: View {
         })
         .padding()
         .topToolbar {
-            ToolbarView(app: app, window: window)
+            ToolbarView(installedTweaks: $installedTweaks, appliedTweaks: $appliedTweaks, appliedTweaksMessage: $appliedTweaksMessage, app: app, window: window)
         }
         .onAppear {
             getRepos()
+        }
+        .alertDialog(visible: $pythonWarning, heading: "Error", body: "Python 3 was not found, please install it and run PureKFD again")
+        .response("Close App", appearance: .suggested, role: .close) {
+            app.quit()
+        }
+        .alertDialog(visible: $appliedTweaks, heading: "Result", body: "Result: \(appliedTweaksMessage)")
+        .response("Done", appearance: .suggested, role: .close) {
+            appliedTweaks = false
+        }
+        .alertDialog(visible: $installedTweak, heading: "Success", body: "Installed \(selectedPackage?.name ?? "Tweak")!")
+        .response("Done", appearance: .suggested, role: .close) {
+            installedTweak = false
+        }
+        .alertDialog(visible: $installedTweakError, heading: "Error", body: installedTweakErrorMessage)
+        .response("Done", appearance: .suggested, role: .close) {
+            installedTweakError = false
+        }
+        .alertDialog(visible: $uninstallTweakConfirmation, heading: "Confirm", body: "Are you sure you would like to uninstall \(selectedPackage?.name ?? "nil")")
+        .response("Cancel", role: .close) {
+            uninstallTweakConfirmation = false
+        }
+        .response("Uninstall", appearance: .suggested, role: .default) {
+            try? FileManager.default.removeItem(atPath: URL.documents.appendingPathComponent("pkgs/\(selectedPackage?.bundleid ?? "unknown")").path)
+            installedTweaks.removeAll(where: { $0.bundleid == (selectedPackage?.bundleid ?? "unknown") })
+            uninstallTweakConfirmation = false
         }
     }
 
@@ -179,6 +228,11 @@ struct MainView: View {
             let sysInfo = getSystemInfo()
             Idle {
                 systemInfo = sysInfo
+            }
+        }
+        Task {
+            if !commandExists("python3") {
+                pythonWarning = true
             }
         }
     }

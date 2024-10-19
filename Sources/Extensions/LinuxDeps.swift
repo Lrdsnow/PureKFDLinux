@@ -106,3 +106,31 @@ func runCommand(command: String) -> String {
 
     return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "N/A"
 }
+
+func commandExists(_ command: String) -> Bool {
+    let process = Process()
+    let pipe = Pipe()
+
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["which", command]
+    process.standardOutput = pipe
+    process.standardError = pipe
+
+    do {
+        try process.run()
+        process.waitUntilExit()
+    } catch {
+        return false
+    }
+
+    return process.terminationStatus == 0
+}
+
+func getExploitPath() -> String {
+    let executablePath = URL(fileURLWithPath: "\(Bundle.main.executablePath ?? "/")")
+    if FileManager.default.fileExists(atPath: executablePath.deletingLastPathComponent().appendingPathComponent("Exploit").path) {
+        return executablePath.deletingLastPathComponent().appendingPathComponent("Exploit").path
+    } else {
+        return "\(FileManager.default.currentDirectoryPath)/Exploit"
+    }
+}

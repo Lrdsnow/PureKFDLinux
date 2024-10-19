@@ -80,9 +80,9 @@ class TweakPath {
         
         for temp_component in pathComponents {
             var component = temp_component
-            #if canImport(Combine)
             let pure_plist = component.contains("?pure_plist.")
             let pure_text = component.contains("?pure_text.")
+            #if canImport(Combine)
             if pure_plist {
                 component = temp_component.replacingOccurrences(of: "?pure_plist.", with: "")
                 path = path.replacingOccurrences(of: "?pure_plist.", with: "")
@@ -157,6 +157,10 @@ class TweakPath {
                     return nil
                 }
                 #else
+                if let components = parseAppUUID(component) {
+                    let __path = runCommand(command: "python3 \(getExploitPath())/GetAppUUID.py \(components.appIdentifier) \(URL.documents.appendingPathComponent("temp/appCache.bin").path)")
+                    return (nil, __path+(path.components(separatedBy: ".app").last ?? ""))
+                }
                 return nil
                 #endif
             } else if component.hasPrefix("%"), component.hasSuffix("%") {
