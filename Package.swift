@@ -9,7 +9,8 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.0")),
         .package(url: "https://github.com/Lrdsnow/JASON.git", .revisionItem("72ec8fcdb3df09057d22e71680bca8a643967d47")),
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
-        .package(url: "https://github.com/Lrdsnow/Zip.git", .revisionItem("48ff25a76bf37a2922e41e129f56404d9b4eee87"))
+        .package(url: "https://github.com/Lrdsnow/Zip.git", .revisionItem("48ff25a76bf37a2922e41e129f56404d9b4eee87")),
+        .package(url: "https://git.aparoksha.dev/aparoksha/adwaita-swift", from: "0.1.0")
     ],
     targets: [
         .executableTarget(
@@ -20,8 +21,10 @@ let package = Package(
                 .product(name: "Zip", package: "Zip"),
                 .product(name: "OpenCombine", package: "OpenCombine"),
                 .product(name: "OpenCombineFoundation", package: "OpenCombine"),
-                .product(name: "OpenCombineDispatch", package: "OpenCombine")
-            ]
+                .product(name: "OpenCombineDispatch", package: "OpenCombine"),
+                .product(name: "Adwaita", package: "adwaita-swift")
+            ],
+            path: "Sources"
         ),
     ]
 )

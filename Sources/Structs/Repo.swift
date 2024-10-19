@@ -14,7 +14,8 @@ import OpenCombine
 #endif 
 
 
-public struct Repo: Codable, Hashable, Sendable {
+public struct Repo: Codable, Hashable, Sendable, Identifiable {
+    public var id: URL { return url ?? URL(fileURLWithPath: "/") }
     let name: String
     var description: String
     var url: URL?

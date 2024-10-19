@@ -36,7 +36,7 @@ func findFileOrFolder(_ url: URL, _ names: [String]) -> [URL] {
 }
 
 public class TweakHandler: ObservableObject {
-    func downloadTweakAsync(pkg: Package) async throws {
+    static func downloadTweakAsync(pkg: Package) async throws {
         let response = await AF.request(pkg.path!).serializingData().response
 
         switch response.result {

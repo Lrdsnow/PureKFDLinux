@@ -15,6 +15,8 @@ import OpenCombine
 
 @preconcurrency
 import JASON
+
+import Adwaita
 #endif 
 
 public class RepoHandler: ObservableObject {
@@ -101,6 +103,9 @@ public class RepoHandler: ObservableObject {
                     appData.repos = Array(Set(appData.repos))
                     appData.pkgs = appData.repos.flatMap { $0.packages }
                     appData.featured = appData.repos.flatMap { $0.featured ?? [] }
+                    #if canImport(Adwaita)
+                    StateManager.updateViews(force: true)
+                    #endif
                 }
             }
         }
@@ -119,12 +124,13 @@ public class RepoHandler: ObservableObject {
     }
     #else
     func getRepo(_ url: URL, completion: @Sendable @escaping (Repo?, Error?) -> Void) {
-        AF.request(url).responseJASON { response in
-            switch response.result {
-            case .success(let json):
-                completion(Repo(json, url), nil)
-            case .failure(let error):
-                completion(Repo(error, url), error)
+        let capturedURL = url
+        Task.detached {
+            do {
+                let repo = try await RepoHandler().getRepoAsync(capturedURL)
+                completion(repo, nil)
+            } catch {
+                completion(Repo(error, capturedURL), error)
             }
         }
     }

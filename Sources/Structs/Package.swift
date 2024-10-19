@@ -13,7 +13,8 @@ import Combine
 import OpenCombine
 #endif 
 
-public struct Package: Codable, Sendable {
+public struct Package: Codable, Sendable, Identifiable {
+    public var id: String { return bundleid }
     // Package Info
     var name: String
     var bundleid: String
